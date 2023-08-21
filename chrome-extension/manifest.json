@@ -14,7 +14,7 @@
 	"content_scripts":[
 		{
 			"matches":[
-				"https://chat.openai.com/*"
+				"http://*/*", "https://*/*" 
 			],
 			"js": ["jquery.min.js", "fontawesome.min.js", "content.js"]
 		}

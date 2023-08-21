@@ -517,21 +517,16 @@ function CN_CheckNewMessages() {
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function CN_SendMessage(text) {
 	// Put message in textarea
-	jQuery("#prompt-textarea").focus();
-	var existingText = jQuery("#prompt-textarea").val();
-	
-	// Is there already existing text?
-	if (!existingText) CN_SetTextareaValue(text);
-	else CN_SetTextareaValue(existingText+" "+text);
-	
-	// Change height in case
-	var fullText = existingText+" "+text;
-	var rows = Math.ceil( fullText.length / 88);
-	var height = rows * 24;
-	jQuery("#prompt-textarea").css("height", height+"px");
-	
-	// Send the message, if autosend is enabled
-	jQuery("#prompt-textarea").closest("div").find("button").prop("disabled", false);
+	console.log("CN_SendMessage")
+	var $focusedInput = jQuery(":focus");
+	const textarea = $focusedInput[0];
+
+	var existingText = $focusedInput.val();
+	if (!existingText) $focusedInput.val(text);
+	else $focusedInput.val(existingText+" "+text);
+	textarea.dispatchEvent(new Event('input', { bubbles: true }))
+
+
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
 		jQuery("#prompt-textarea").closest("div").find("button").click();
 		
@@ -541,11 +536,28 @@ function CN_SendMessage(text) {
 			CN_SPEECHREC.stop();
 		}
 	} else {
-		// No autosend, so continue recognizing
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-	}
+	clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+	CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+
 }
+// function CN_SetTextareaValue(text) {
+//     const textarea = jQuery("#prompt-textarea")[0];
+//     function setNativeValue(element, value) {
+//       const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
+//       const prototype = Object.getPrototypeOf(element)
+//       const { set: prototypeValueSetter } = Object.getOwnPropertyDescriptor(prototype, 'value') || {}
+
+//       if (prototypeValueSetter && valueSetter !== prototypeValueSetter) {
+//         prototypeValueSetter.call(element, value)
+//       } else if (valueSetter) {
+//         valueSetter.call(element, value)
+//       } else {
+//         throw new Error('The given element does not have a value setter')
+//       }
+//     }
+//     setNativeValue(textarea, text)
+//     textarea.dispatchEvent(new Event('input', { bubbles: true }))
+// }
 
 // Flash the red bar
 function CN_FlashRedBar() {
@@ -607,6 +619,7 @@ function CN_StartSpeechRecognition() {
 	CN_SPEECHREC = ('webkitSpeechRecognition' in window) ? new webkitSpeechRecognition() : new SpeechRecognition();
 	CN_SPEECHREC.continuous = true;
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
+	console.log("CN_WANTED_LANGUAGE_SPEECH_REC",CN_WANTED_LANGUAGE_SPEECH_REC)
 	CN_SPEECHREC.onstart = () => {
 		// Make bar red
 		$("#CNStatusBar").css("background", "red");
@@ -911,16 +924,17 @@ function CN_StartTTGPT() {
 
 // Check we are on the correct page
 function CN_CheckCorrectPage() {
-	console.log("Checking we are on the correct page...");
-	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
+	// console.log("Checking we are on the correct page...");
+	// var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
 	
-	if (wrongPage) {
-		// We are on the wrong page, keep checking
-		setTimeout(CN_CheckCorrectPage, 1000);
-	} else {
-		// We are on the right page, let's go!
-		CN_InitScript();
-	}
+	// if (wrongPage) {
+	// 	// We are on the wrong page, keep checking
+	// 	setTimeout(CN_CheckCorrectPage, 1000);
+	// } else {
+	// 	// We are on the right page, let's go!
+	// 	CN_InitScript();
+	// }
+	CN_InitScript();
 }
 
 // Perform initialization after jQuery is loaded
@@ -1609,4 +1623,4 @@ var CN_SPEECHREC_LANGS =
                      ['yue-Hant-HK', '粵語 (香港)']],
  ['日本語',           ['ja-JP']],
  ['हिन्दी',               ['hi-IN']],
- ['ภาษาไทย',         	 ['th-TH']]];
+ ['ภาษาไทย',         	 ['th-TH']]]}
